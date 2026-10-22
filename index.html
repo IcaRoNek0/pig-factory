@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>猪厂专辑 · Pig Factory</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #2a2a2a;
+      --text: #f2f2f2;
+      --muted: #9a9a9a;
+      --accent: #ff6b6b;
+      --accent-2: #ffa94d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #2b1b1b, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .app {
+      width: 100%;
+      max-width: 760px;
+    }
+    header {
+      margin-bottom: 24px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0 0 6px;
+      letter-spacing: 1px;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .player {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      margin-bottom: 22px;
+    }
+    .now-playing {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .now-playing .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+    .now-playing .title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--accent-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 99px;
+      background: var(--panel-2);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff2;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff2;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+    .controls button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .controls button:hover { background: #3a3a3a; }
+    .controls button:active { transform: scale(0.95); }
+    .controls button.play {
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #1a1a1a;
+    }
+    .controls button.play:hover { filter: brightness(1.08); }
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .volume-row input[type="range"] { width: 120px; }
+    .playlist {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+    .playlist h2 {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 6px 10px 10px;
+      letter-spacing: 1px;
+    }
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .track:hover { background: var(--panel-2); }
+    .track.active {
+      background: linear-gradient(90deg, rgba(255,107,107,0.18), rgba(255,169,77,0.08));
+    }
+    .track .index {
+      width: 24px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .track.active .index { color: var(--accent); }
+    .track .name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.95rem;
+    }
+    .track.active .name { color: var(--accent-2); font-weight: 600; }
+    .track .playing-indicator {
+      font-size: 0.75rem;
+      color: var(--accent);
+      opacity: 0;
+    }
+    .track.active .playing-indicator { opacity: 1; }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 22px;
+    }
+    @media (max-width: 520px) {
+      .controls { gap: 12px; }
+      .volume-row input[type="range"] { width: 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>猪厂专辑</h1>
+      <p>Pig Factory · 自编音乐在线试听</p>
+    </header>
+
+    <section class="player">
+      <div class="now-playing">
+        <span class="label">正在播放</span>
+        <span class="title" id="nowTitle">未选择曲目</span>
+      </div>
+
+      <div class="progress-row">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progress" min="0" max="1000" value="0">
+        <span id="duration">0:00</span>
+      </div>
+
+      <div class="controls">
+        <button id="prevBtn" title="上一首">⏮</button>
+        <button id="playBtn" class="play" title="播放/暂停">▶</button>
+        <button id="nextBtn" title="下一首">⏭</button>
+      </div>
+
+      <div class="volume-row">
+        <span>音量</span>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.9">
+      </div>
+    </section>
+
+    <section class="playlist">
+      <h2>曲目列表</h2>
+      <div id="trackList"></div>
+    </section>
+
+    <footer>© 2026 fattiger · 保留所有权利</footer>
+  </div>
+
+  <audio id="audio" preload="metadata"></audio>
+
+  <script>
+    // 曲目列表：文件名即显示名（可自行调整 name）
+    const TRACKS = [
+      { name: "十万嬉皮革-万能皮革旅店", file: "十万嬉皮革-万能皮革旅店.mp3" },
+      { name: "大石碎酒肚", file: "大石碎酒肚.mp3" },
+      { name: "家猪", file: "家猪.mp3" },
+      { name: "广州大肥猪", file: "广州大肥猪.mp3" },
+      { name: "揪心的皮革与漫长的白日梦", file: "揪心的皮革与漫长的白日梦.mp3" },
+      { name: "杀死那个碧海湾人", file: "杀死那个碧海湾人.mp3" },
+      { name: "猪手", file: "猪手.mp3" },
+      { name: "猪港小镇", file: "猪港小镇.mp3" },
+      { name: "猪车", file: "猪车.mp3" },
+      { name: "皮革厂", file: "皮革厂.mp3" },
+      { name: "皮革点灯", file: "皮革点灯.mp3" }
+    ];
+
+    const USER = "fattiger";
+    const REPO = "pig-factory";
+    const TAG = "v1.0";
+
+    const CDN_BASE = `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${TAG}/`;
+
+    const audio = document.getElementById("audio");
+    const playBtn = document.getElementById("playBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progress = document.getElementById("progress");
+    const volume = document.getElementById("volume");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+    const nowTitle = document.getElementById("nowTitle");
+    const trackList = document.getElementById("trackList");
+
+    let currentIndex = -1;
+    let isSeeking = false;
+
+    function formatTime(seconds) {
+      if (!isFinite(seconds) || seconds < 0) return "0:00";
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s.toString().padStart(2, "0")}`;
+    }
+
+    function trackUrl(track) {
+      return CDN_BASE + encodeURIComponent(track.file);
+    }
+
+    function renderPlaylist() {
+      trackList.innerHTML = "";
+      TRACKS.forEach((track, i) => {
+        const row = document.createElement("div");
+        row.className = "track";
+        row.dataset.index = i;
+        row.innerHTML = `
+          <span class="index">${(i + 1).toString().padStart(2, "0")}</span>
+          <span class="name">${track.name}</span>
+          <span class="playing-indicator">● 播放中</span>
+        `;
+        row.addEventListener("click", () => playTrack(i));
+        trackList.appendChild(row);
+      });
+    }
+
+    function highlightTrack(index) {
+      document.querySelectorAll(".track").forEach((row, i) => {
+        row.classList.toggle("active", i === index);
+      });
+    }
+
+    function playTrack(index) {
+      if (index < 0 || index >= TRACKS.length) return;
+      currentIndex = index;
+      const track = TRACKS[index];
+      audio.src = trackUrl(track);
+      nowTitle.textContent = track.name;
+      highlightTrack(index);
+      audio.play().catch(() => {
+        // 浏览器可能因自动播放策略阻止，等待用户再次点击
+        playBtn.textContent = "▶";
+      });
+    }
+
+    function togglePlay() {
+      if (currentIndex === -1) {
+        playTrack(0);
+        return;
+      }
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+    }
+
+    function playPrev() {
+      if (TRACKS.length === 0) return;
+      const next = currentIndex <= 0 ? TRACKS.length - 1 : currentIndex - 1;
+      playTrack(next);
+    }
+
+    function playNext() {
+      if (TRACKS.length === 0) return;
+      const next = currentIndex >= TRACKS.length - 1 ? 0 : currentIndex + 1;
+      playTrack(next);
+    }
+
+    // 事件绑定
+    playBtn.addEventListener("click", togglePlay);
+    prevBtn.addEventListener("click", playPrev);
+    nextBtn.addEventListener("click", playNext);
+
+    audio.addEventListener("play", () => { playBtn.textContent = "⏸"; });
+    audio.addEventListener("pause", () => { playBtn.textContent = "▶"; });
+    audio.addEventListener("ended", playNext);
+
+    audio.addEventListener("loadedmetadata", () => {
+      durationEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      if (isSeeking) return;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+      if (audio.duration > 0) {
+        progress.value = (audio.currentTime / audio.duration) * 1000;
+      }
+    });
+
+    progress.addEventListener("input", () => {
+      isSeeking = true;
+      if (audio.duration > 0) {
+        const t = (progress.value / 1000) * audio.duration;
+        currentTimeEl.textContent = formatTime(t);
+      }
+    });
+
+    progress.addEventListener("change", () => {
+      if (audio.duration > 0) {
+        audio.currentTime = (progress.value / 1000) * audio.duration;
+      }
+      isSeeking = false;
+    });
+
+    volume.addEventListener("input", () => {
+      audio.volume = parseFloat(volume.value);
+    });
+
+    // 初始化
+    audio.volume = parseFloat(volume.value);
+    renderPlaylist();
+  </script>
+</body>
+</html>
