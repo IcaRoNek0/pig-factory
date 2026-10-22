@@ -239,32 +239,26 @@
       <div id="trackList"></div>
     </section>
 
-    <footer>© 2026 fattiger · 保留所有权利</footer>
+    <footer>© 2026 IcaRoNek0 · 保留所有权利</footer>
   </div>
 
   <audio id="audio" preload="metadata"></audio>
 
   <script>
-    // 曲目列表：文件名即显示名（可自行调整 name）
+    // 曲目列表：file 对应 album 目录下的文件名
     const TRACKS = [
       { name: "十万嬉皮革-万能皮革旅店", file: "十万嬉皮革-万能皮革旅店.mp3" },
-      { name: "大石碎酒肚", file: "大石碎酒肚.mp3" },
-      { name: "家猪", file: "家猪.mp3" },
-      { name: "广州大肥猪", file: "广州大肥猪.mp3" },
+      { name: "大石碎酒肚",               file: "大石碎酒肚.mp3" },
+      { name: "家猪",                     file: "家猪.mp3" },
+      { name: "广州大肥猪",               file: "广州大肥猪.mp3" },
       { name: "揪心的皮革与漫长的白日梦", file: "揪心的皮革与漫长的白日梦.mp3" },
-      { name: "杀死那个碧海湾人", file: "杀死那个碧海湾人.mp3" },
-      { name: "猪手", file: "猪手.mp3" },
-      { name: "猪港小镇", file: "猪港小镇.mp3" },
-      { name: "猪车", file: "猪车.mp3" },
-      { name: "皮革厂", file: "皮革厂.mp3" },
-      { name: "皮革点灯", file: "皮革点灯.mp3" }
+      { name: "杀死那个碧海湾人",         file: "杀死那个碧海湾人.mp3" },
+      { name: "猪手",                     file: "猪手.mp3" },
+      { name: "猪港小镇",                 file: "猪港小镇.mp3" },
+      { name: "猪车",                     file: "猪车.mp3" },
+      { name: "皮革厂",                   file: "皮革厂.mp3" },
+      { name: "皮革点灯",                 file: "皮革点灯.mp3" }
     ];
-
-    const USER = "fattiger";
-    const REPO = "pig-factory";
-    const TAG = "v1.0";
-
-    const CDN_BASE = `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${TAG}/`;
 
     const audio = document.getElementById("audio");
     const playBtn = document.getElementById("playBtn");
@@ -287,8 +281,9 @@
       return `${m}:${s.toString().padStart(2, "0")}`;
     }
 
+    // 音频位于站点根目录下的 album 文件夹
     function trackUrl(track) {
-      return CDN_BASE + encodeURIComponent(track.file);
+      return "./album/" + encodeURIComponent(track.file);
     }
 
     function renderPlaylist() {
@@ -321,7 +316,7 @@
       nowTitle.textContent = track.name;
       highlightTrack(index);
       audio.play().catch(() => {
-        // 浏览器可能因自动播放策略阻止，等待用户再次点击
+        // 浏览器自动播放策略可能拦截，等待用户再次点击
         playBtn.textContent = "▶";
       });
     }
@@ -350,7 +345,6 @@
       playTrack(next);
     }
 
-    // 事件绑定
     playBtn.addEventListener("click", togglePlay);
     prevBtn.addEventListener("click", playPrev);
     nextBtn.addEventListener("click", playNext);
@@ -390,7 +384,6 @@
       audio.volume = parseFloat(volume.value);
     });
 
-    // 初始化
     audio.volume = parseFloat(volume.value);
     renderPlaylist();
   </script>
